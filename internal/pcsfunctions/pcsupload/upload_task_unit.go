@@ -6,6 +6,11 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"os"
+	"path"
+	"strings"
+	"time"
+
 	"github.com/qjfoidnh/BaiduPCS-Go/baidupcs"
 	"github.com/qjfoidnh/BaiduPCS-Go/baidupcs/pcserror"
 	"github.com/qjfoidnh/BaiduPCS-Go/internal/pcsconfig"
@@ -15,9 +20,6 @@ import (
 	"github.com/qjfoidnh/BaiduPCS-Go/pcsutil/taskframework"
 	"github.com/qjfoidnh/BaiduPCS-Go/requester/rio"
 	"github.com/qjfoidnh/BaiduPCS-Go/requester/uploader"
-	"path"
-	"strings"
-	"time"
 )
 
 type (
@@ -263,6 +265,21 @@ func (utu *UploadTaskUnit) upload() (result *taskframework.TaskUnitRunResult) {
 	muer.OnSuccess(func() {
 		fmt.Printf("\n")
 		fmt.Printf("[%s] 上传文件成功, 保存到网盘路径: %s\n", utu.taskInfo.Id(), utu.SavePath)
+
+		// 上传成功后获取文件的 fsid 并保存到 .baidufsid 文件中
+		fileInfo, err := utu.PCS.FilesDirectoriesMeta(utu.SavePath)
+		if err != nil {
+			fmt.Printf("[%s] 获取文件 fsid 失败: %s\n", utu.taskInfo.Id(), err)
+			return
+		}
+		localFsidPath := utu.LocalFileChecksum.Path + ".baidufsid"
+		writeErr := os.WriteFile(localFsidPath, []byte(fmt.Sprintf("%d", fileInfo.FsID)), 0644)
+		if writeErr != nil {
+			fmt.Printf("[%s] 保存 FSID 到文件失败: %s\n", utu.taskInfo.Id(), writeErr)
+			return
+		}
+		fmt.Printf("FSID %d 已保存到文件: %s\n", fileInfo.FsID, localFsidPath)
+
 		// 统计
 		utu.UploadStatistic.AddTotalSize(utu.LocalFileChecksum.Length)
 		utu.UploadingDatabase.Delete(&utu.LocalFileChecksum.LocalFileMeta) // 删除

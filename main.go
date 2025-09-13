@@ -55,7 +55,7 @@ const (
 
 var (
 	// Version 版本号
-	Version = "v3.9.9-devel"
+	Version = "v3.9.9-devel-二枚目魔改版"
 
 	historyFilePath = filepath.Join(pcsconfig.GetConfigDir(), "pcs_command_history.txt")
 	reloadFn        = func(c *cli.Context) error {
@@ -107,6 +107,7 @@ func main() {
 		下载网盘内文件, 支持网盘内目录 (文件夹) 下载, 支持多个文件或目录下载, 支持断点续传和高并发高速下载.
 
 	---------------------------------------------------
+	魔改版源码 https://github.com/lyl2016/BaiduPCS-Go
 	前往 https://github.com/qjfoidnh/BaiduPCS-Go 以获取更多帮助信息!
 	前往 https://github.com/qjfoidnh/BaiduPCS-Go/releases 以获取程序更新信息!
 	---------------------------------------------------
