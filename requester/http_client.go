@@ -33,7 +33,6 @@ func (h *HTTPClient) lazyInit() {
 		h.transport = &http.Transport{
 			Proxy:       proxyFunc,
 			DialContext: dialContext,
-			Dial:        dial,
 			// DialTLS:     h.dialTLSFunc(),
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: true,
@@ -81,13 +80,13 @@ func (h *HTTPClient) ResetCookiejar() {
 func (h *HTTPClient) SetHTTPSecure(b bool) {
 	h.https = b
 	h.lazyInit()
-// 	if b {
-// 		h.transport.TLSClientConfig = nil
-// 	} else {
-    h.transport.TLSClientConfig = &tls.Config{
-        InsecureSkipVerify: true,
-    }
-// 	}
+	// 	if b {
+	// 		h.transport.TLSClientConfig = nil
+	// 	} else {
+	h.transport.TLSClientConfig = &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	// 	}
 }
 
 // SetKeepAlive 设置 Keep-Alive

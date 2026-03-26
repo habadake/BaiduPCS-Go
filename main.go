@@ -55,7 +55,7 @@ const (
 
 var (
 	// Version 版本号
-	Version = "v3.9.9-devel-二枚目魔改版"
+	Version = "v4.0.0-stable"
 
 	historyFilePath = filepath.Join(pcsconfig.GetConfigDir(), "pcs_command_history.txt")
 	reloadFn        = func(c *cli.Context) error {
@@ -1217,6 +1217,7 @@ func main() {
 					MaxRetry:      c.Int("retry"),
 					Load:          c.Int("l"),
 					NoRapidUpload: c.Bool("norapid"),
+					Policy:        c.String("policy"),
 				})
 				return nil
 			},
@@ -1237,6 +1238,10 @@ func main() {
 				cli.BoolFlag{
 					Name:  "norapid",
 					Usage: "跳过秒传",
+				},
+				cli.StringFlag{
+					Name:  "policy",
+					Usage: fmt.Sprintf("对同名文件的处理策略 (default: %s), %s, %s", baidupcs.SkipPolicy, baidupcs.OverWritePolicy, baidupcs.RsyncPolicy),
 				},
 			},
 		},
@@ -1812,6 +1817,9 @@ func main() {
 						if c.IsSet("fix_pcs_addr") {
 							pcsconfig.Config.SetStaticPCSAddr(c.Bool("fix_pcs_addr"))
 						}
+						if c.IsSet("upload_policy") {
+							pcsconfig.Config.SetUploadPolicy(c.String("upload_policy"))
+						}
 						if c.IsSet("pan_ua") {
 							pcsconfig.Config.SetPanUA(c.String("pan_ua"))
 						}
@@ -1853,6 +1861,9 @@ func main() {
 						}
 						if c.IsSet("proxy") {
 							pcsconfig.Config.SetProxy(c.String("proxy"))
+						}
+						if c.IsSet("proxy_hostnames") {
+							pcsconfig.Config.SetProxyHostnames(c.String("proxy_hostnames"))
 						}
 						if c.IsSet("local_addrs") {
 							pcsconfig.Config.SetLocalAddrs(c.String("local_addrs"))
@@ -1938,6 +1949,10 @@ func main() {
 							Name:  "pcs_addr",
 							Usage: "PCS 服务器地址",
 						},
+						cli.BoolFlag{
+							Name:  "fix_pcs_addr",
+							Usage: "使用静态PCS 服务器",
+						},
 						cli.StringFlag{
 							Name:  "pan_ua",
 							Usage: "Pan 浏览器标识",
@@ -1945,6 +1960,10 @@ func main() {
 						cli.StringFlag{
 							Name:  "proxy",
 							Usage: "设置代理, 支持 http/socks5 代理",
+						},
+						cli.StringFlag{
+							Name:  "proxy_hostnames",
+							Usage: "设置走代理的域名范围, 多个域名用逗号隔开, 留空则所有域名均代理",
 						},
 						cli.StringFlag{
 							Name:  "local_addrs",
